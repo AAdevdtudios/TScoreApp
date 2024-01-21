@@ -1,0 +1,27 @@
+name: tscore_app
+version: 1.0.0+1
+publish_to: none
+description: A new Flutter project.
+environment:
+  sdk: ">=3.2.3 <4.0.0"
+
+dependencies:
+  cupertino_icons: ^1.0.2
+  get: 4.6.6
+  icons_plus: any
+  fast_ui_kit: any
+  custom_pin_screen: any
+  get_storage: any
+  http: any
+  json_serializable: ^6.7.1
+  google_fonts: any
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^2.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
