@@ -22,9 +22,8 @@ class RegisterController extends GetxController {
         "password2": confirmPassword.text,
         "isWebsite": false,
       };
-      print(data);
       isLoading.value = true;
-      bool result = await ApiServices().loginUser(data);
+      bool result = await ApiServices().registerUser(data);
       isLoading.value = false;
       if (!result) {
         Get.snackbar(

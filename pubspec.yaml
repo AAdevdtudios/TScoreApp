@@ -14,14 +14,32 @@ dependencies:
   get_storage: any
   http: any
   json_serializable: ^6.7.1
+  url_launcher: ^6.2.4
+  flutter_widget_from_html: ^0.14.11
+  webview_flutter: ^4.4.4
+  webview_cookie_manager: ^2.0.6
   google_fonts: any
   flutter:
     sdk: flutter
 
 dev_dependencies:
   flutter_lints: ^2.0.0
+  flutter_native_splash: ^2.3.9
+  flutter_launcher_icons: "^0.13.1"
   flutter_test:
     sdk: flutter
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/ic_launcher.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/images/playstore.png

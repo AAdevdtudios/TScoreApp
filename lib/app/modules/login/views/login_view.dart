@@ -1,6 +1,7 @@
 import 'package:fast_ui_kit/fast_ui_kit.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:tscore_app/app/modules/forgot_password/views/forgot_password_view.dart';
 import 'package:tscore_app/app/modules/register/views/register_view.dart';
@@ -9,8 +10,11 @@ import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
   const LoginView({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
+    var controller = Get.put(LoginController());
     return Scaffold(
       body: SafeArea(
         child: FastContent(
@@ -40,6 +44,7 @@ class LoginView extends GetView<LoginController> {
                 labelStyle: Get.textTheme.bodySmall,
                 hintText: "email@email.com",
               ),
+              controller: controller.email,
               validator: (s) => GetUtils.isEmail(s!) ? null : "Invalid Email",
             ),
             const SizedBox(
@@ -62,6 +67,7 @@ class LoginView extends GetView<LoginController> {
             ),
             TextFormField(
               obscureText: true,
+              controller: controller.password,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 focusedBorder: const OutlineInputBorder(),
@@ -72,17 +78,14 @@ class LoginView extends GetView<LoginController> {
             const SizedBox(
               height: 20,
             ),
-            FastButton(
-              label: "Sign in",
-              background: Colors.blue,
-              onPressed: () {
-                context.showMessage(
-                  "This is just a message",
-                  position: MessagePosition.bottom,
-                );
-                Get.to(const RegisterView());
-              },
-            ),
+            Obx(() {
+              return FastButton(
+                label: "Sign in",
+                background: Colors.blue,
+                loading: controller.isLoading.value,
+                onPressed: () => controller.loginUser(context),
+              );
+            }),
             const SizedBox(
               height: 10,
             ),

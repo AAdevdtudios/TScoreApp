@@ -1,5 +1,6 @@
 import 'package:fast_ui_kit/fast_ui_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:tscore_app/app/data/components/Header.dart';
 import 'package:tscore_app/app/data/components/TextInputForm.dart';
@@ -14,6 +15,7 @@ class OtpView extends GetView<OtpController> {
 
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
     var controller = Get.put(OtpController());
     return Scaffold(
       body: SafeArea(

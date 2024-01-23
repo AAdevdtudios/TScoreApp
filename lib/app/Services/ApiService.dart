@@ -2,7 +2,6 @@ import "dart:convert";
 
 import "package:http/http.dart" as http;
 import "package:tscore_app/app/Services/ApiClient.dart";
-import "package:tscore_app/app/data/ApiData/UserData.dart";
 import "package:tscore_app/main.dart";
 
 class ApiServices {
@@ -10,21 +9,60 @@ class ApiServices {
   Map<String, String> header = {
     "Accept": "application/json",
     "content-type": "application/json; charset=UTF-8",
+    "Authorization": "",
   };
   String baseUrl = ApiEndPoints.baseurl;
-  Future<User> getUser() async {
-    var url = Uri.parse(baseUrl);
+  Future<bool> login(dynamic data) async {
+    var url = Uri.parse(baseUrl + ApiEndPoints.authEndPoints.login);
     try {
-      var response = await client.get(url);
-      print(response.body);
-      return User.fromJson(json.decode(response.body));
+      var response = await client.post(
+        url,
+        body: json.encode(data),
+        headers: header,
+      );
+      var message = json.decode(response.body);
+      if (response.statusCode != 200) {
+        throw message["detail"];
+      }
+      storesInfo(
+        {
+          "refresh_token": message["refresh_token"],
+          "token": message["access_token"],
+        },
+      );
+      await getUser();
+      return true;
     } catch (e) {
-      print(e);
       throw e.toString();
     }
   }
 
-  Future<bool> loginUser(dynamic user) async {
+  Future<bool> getUser() async {
+    var url = Uri.parse(baseUrl + ApiEndPoints.authEndPoints.getUser);
+    try {
+      header["Authorization"] = "Bearer " + box.read("token");
+      print(header);
+      var response = await client.get(url, headers: header);
+      var message = json.decode(response.body);
+      if (response.statusCode != 200) {
+        return false;
+      }
+      print(message);
+      storesInfo({
+        "email": message["email"],
+        "get_full_name": message["get_full_name"],
+        "subscriber_number": message["subscriber_number"],
+        "is_subscribed": message["is_subscribed"],
+        "is_verified": message["is_verified"],
+        "phone_number": message["phone_number"],
+      });
+      return true;
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<bool> registerUser(dynamic user) async {
     var url = Uri.parse(baseUrl + ApiEndPoints.authEndPoints.registration);
     try {
       var response = await client.post(
@@ -33,7 +71,6 @@ class ApiServices {
         headers: header,
         // encoding: Encoding.getByName("utf-8"),
       );
-      print(response.body);
       if (response.statusCode != 200) {
         return false;
       }
@@ -90,7 +127,54 @@ class ApiServices {
     }
   }
 
-  storesInfo(Map<String, String> data) {
+  Future<String> SubscribeUser(dynamic data) async {
+    var url = Uri.parse(baseUrl + ApiEndPoints.authEndPoints.subscriber);
+    try {
+      header["Authorization"] = "Bearer " + box.read("token");
+      var response =
+          await client.post(url, body: json.encode(data), headers: header);
+      var message = json.decode(response.body);
+      if (response.statusCode == 401) {
+        var refresh = await RefreshUserToken();
+        if (refresh == false) {
+          throw "User Session expired";
+        }
+        await SubscribeUser(data);
+      }
+      if (response.statusCode != 200) {
+        throw "Un-known error";
+      }
+
+      return message["message"];
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<bool> RefreshUserToken() async {
+    var url = Uri.parse(baseUrl + ApiEndPoints.authEndPoints.refreshToken);
+    try {
+      var response = await client.post(
+        url,
+        body: json.encode(
+          {
+            "refresh": box.read("refresh_token"),
+          },
+        ),
+        headers: header,
+      );
+      if (response.statusCode != 200) {
+        return false;
+      }
+      var message = json.decode(response.body);
+      storesInfo({"token": message["access"]});
+      return true;
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  storesInfo(Map<String, dynamic> data) {
     data.forEach((key, value) => box.write(key, value));
     print("Saved");
   }
